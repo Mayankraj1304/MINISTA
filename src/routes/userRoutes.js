@@ -1,11 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const { getUsers } = require("../controllers/userController");
+const { getUsers, searchUsers } = require("../controllers/userController");
 const { protect } = require("../middleware/authMiddleware");
 
 // Routes
 // Public route
 router.get("/", getUsers);
+
+// Search route
+router.get("/search", searchUsers);
 
 // Protected route example - only authorized users can access
 router.get("/profile", protect, (req, res) => {
