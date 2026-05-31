@@ -1,4 +1,3 @@
-const userModel = require("../models/post.model");
 const multer = require("multer");
 const upload = multer();
 const ImageKit = require("@imagekit/nodejs");
