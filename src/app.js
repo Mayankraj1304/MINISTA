@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require("cors")
 const cookieParser = require("cookie-parser")
 const authRouter = require("./routes/auth.routes")
 const postRouter = require("./routes/post.routes")
@@ -6,8 +7,13 @@ const followRouter = require("./routes/follow.routes")
 const likesRouter = require("./routes/likes.routes")
 
 const app = express();
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true // Enable this if you are handling cookies/sessions
+}));
 app.use(express.json());
 app.use(cookieParser())
+app.use(cors())
 
 
 app.use("/api/auth", authRouter)
