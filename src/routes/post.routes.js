@@ -10,6 +10,7 @@ const postRouter = express.Router()
  * POST /api/posts/
  */
 postRouter.post('/', identifyUser, upload.single('imgUrl'), postController.createPostController)
-postRouter.get('/',identifyUser, postController.getAllPostsController)
+postRouter.get('/', identifyUser, postController.getAllPostsController)
+postRouter.get('/feed', identifyUser, postController.getFeedController)
 postRouter.get('/:id', identifyUser, postController.getPostByIdController)
 module.exports = postRouter

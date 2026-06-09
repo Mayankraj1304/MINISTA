@@ -45,8 +45,14 @@ async function getPostByIdController(req, res) {
   res.status(200).json({ post });
 }
 
+async function getFeedController(req, res) {
+  const posts = await postModel.find().populate("user").sort({ createdAt: -1 });
+  res.status(200).json({ posts });
+}
+
 module.exports = {
   createPostController,
   getAllPostsController,
   getPostByIdController,
+  getFeedController,
 };
