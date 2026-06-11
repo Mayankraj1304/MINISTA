@@ -2,6 +2,12 @@ const userModel = require("../models/User.model");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+};
+
 async function registerController(req, res) {
   const { email, username, password, bio, profileImage } = req.body;
 
@@ -37,7 +43,7 @@ async function registerController(req, res) {
     { expiresIn: "1d" },
   );
 
-  res.cookie("token", token);
+  res.cookie("token", token, cookieOptions);
 
   res.status(201).json({
     message: "User Registered successfully",
@@ -96,7 +102,7 @@ async function loginController(req, res) {
     expiresIn: "1d",
   });
 
-  res.cookie("token", token);
+  res.cookie("token", token, cookieOptions);
 
   res.status(200).json({
     message: "User loggedIn successfully.",
