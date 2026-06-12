@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useFeeds } from "../hooks/useFeeds";
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, RotateCw } from "lucide-react";
 import "../styles/feeds.scss";
+import NavBar from "../components/navBar";
 
 const Feeds = () => {
   const { feeds, loading, handleGetFeeds } = useFeeds();
@@ -12,20 +13,7 @@ const Feeds = () => {
 
   return (
     <main className="feeds-page-container">
-      {/* Top Navigation / Header Bar */}
-      <header className="feeds-top-bar">
-        <h1 className="brand-logo">MINISTA</h1>
-        <button 
-          className="refresh-btn" 
-          onClick={handleGetFeeds} 
-          disabled={loading}
-          aria-label="Refresh feed"
-        >
-          <RotateCw size={18} className={loading ? "spinning" : ""} />
-          <span>Refresh</span>
-        </button>
-      </header>
-
+      <NavBar />
       {/* Main Content Area */}
       <div className="feeds-content">
         {loading ? (

@@ -20,15 +20,15 @@ async function createPostController(req, res) {
     fileName: req.file.originalname,
   });
 
-  res.status(201).json({
-    message: "File uploaded",
-    url: uploadResult.url,
-  });
-
-  postModel.create({
+  const post = await postModel.create({
     caption: req.body.caption,
     imgUrl: uploadResult.url,
     user: req.user.id,
+  });
+
+  res.status(201).json({
+    message: "Post created",
+    post,
   });
 }
 
