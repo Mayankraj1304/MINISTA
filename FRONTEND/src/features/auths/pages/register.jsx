@@ -1,10 +1,10 @@
 import React from "react";
 import "../styles/forms.scss";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
-  const { loading, handleRegister } = useAuth();
+  const { loading, error, clearError, handleRegister } = useAuth();
   const [username, setUsername] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -12,17 +12,14 @@ const Register = () => {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await handleRegister(username, email, password);
-    navigate("/feeds");
+    try {
+      await handleRegister(username, email, password);
+      navigate("/");
+    } catch (error) {
+      console.error("Register failed:", error);
+    }
   }
-  
-  if (!loading) {
-    return (
-      <main>
-        <h1>LOADING...</h1>
-      </main>
-    );
-  }
+
   return (
     <div className="auth-container">
       <main className="auth-card">
@@ -34,6 +31,13 @@ const Register = () => {
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
+          {error && (
+            <div className="app-alert app-alert--error">
+              <span>{error}</span>
+              <button type="button" onClick={clearError}>Dismiss</button>
+            </div>
+          )}
+
           <div className="auth-form__group">
             <label className="auth-form__label" htmlFor="username">
               Username
@@ -79,17 +83,17 @@ const Register = () => {
             />
           </div>
 
-          <button className="auth-form__submit-btn" type="submit">
-            Get Started
+          <button className="auth-form__submit-btn" type="submit" disabled={loading}>
+            {loading ? "Creating account..." : "Get Started"}
           </button>
         </form>
 
         <div className="auth-card__footer">
           <p>
             Already have an account?{" "}
-            <a href="#login" className="auth-form__link auth-form__link--bold">
+            <Link to="/login" className="auth-form__link auth-form__link--bold">
               Log in
-            </a>
+            </Link>
           </p>
         </div>
       </main>

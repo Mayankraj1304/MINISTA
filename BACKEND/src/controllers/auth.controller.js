@@ -8,6 +8,16 @@ const cookieOptions = {
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 };
 
+function serializeUser(user) {
+  return {
+    id: user._id,
+    email: user.email,
+    username: user.username,
+    bio: user.bio,
+    profileImage: user.profileImage,
+  };
+}
+
 async function registerController(req, res) {
   const { email, username, password, bio, profileImage } = req.body;
 
@@ -47,12 +57,7 @@ async function registerController(req, res) {
 
   res.status(201).json({
     message: "User Registered successfully",
-    user: {
-      email: user.email,
-      username: user.username,
-      bio: user.bio,
-      profileImage: user.profileImage,
-    },
+    user: serializeUser(user),
   });
 }
 
@@ -106,12 +111,7 @@ async function loginController(req, res) {
 
   res.status(200).json({
     message: "User loggedIn successfully.",
-    user: {
-      username: user.username,
-      email: user.email,
-      bio: user.bio,
-      profileImage: user.profileImage,
-    },
+    user: serializeUser(user),
   });
 }
 
@@ -126,12 +126,14 @@ async function getMeController(req, res) {
 
   res.status(200).json({
     message: "User found successfully.",
-    user: {
-      username: user.username,
-      email: user.email,
-      bio: user.bio,
-      profileImage: user.profileImage,
-    },
+    user: serializeUser(user),
+  });
+}
+
+async function logoutController(req, res) {
+  res.clearCookie("token", cookieOptions);
+  res.status(200).json({
+    message: "User logged out successfully.",
   });
 }
 
@@ -139,4 +141,5 @@ module.exports = {
   registerController,
   loginController,
   getMeController,
+  logoutController,
 };

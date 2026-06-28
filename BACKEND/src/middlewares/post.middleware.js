@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const userModel = require("../models/User.model");
 
 async function identifyUser(req, res, next) {
   const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
@@ -17,7 +18,14 @@ async function identifyUser(req, res, next) {
     return res.status(401).json({ message: "Invalid token" });
   }
 
-  req.user = decoded;
+  const user = await userModel.findById(decoded.id);
+
+  if (!user) {
+    res.clearCookie("token");
+    return res.status(401).json({ message: "Invalid user" });
+  }
+
+  req.user = { id: user._id };
   next();
 }
 

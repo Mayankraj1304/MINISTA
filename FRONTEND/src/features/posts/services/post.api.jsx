@@ -9,23 +9,32 @@ const API_URL = {
 };
 
 export async function getFeeds() {
-  try {
-    const response = await axios.get(`${API_URL.baseURL}feed`, {
-      withCredentials: true,
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await axios.get(`${API_URL.baseURL}feed`, {
+    withCredentials: true,
+  });
+  return response.data;
 }
 
 export async function createPost(formData) {
-  try {
-    const response = await axios.post(API_URL.baseURL, formData, {
-      withCredentials: true,
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await axios.post(API_URL.baseURL, formData, {
+    withCredentials: true,
+  });
+  return response.data;
+}
+
+export async function likePost(postId) {
+  const response = await axios.post(
+    `${API_BASE_URL}/user/likes/${postId}`,
+    {},
+    { withCredentials: true },
+  );
+  return response.data;
+}
+
+export async function unlikePost(postId) {
+  const response = await axios.delete(
+    `${API_BASE_URL}/user/likes/${postId}`,
+    { withCredentials: true },
+  );
+  return response.data;
 }

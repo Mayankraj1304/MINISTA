@@ -4,6 +4,7 @@ const ImageKit = require("@imagekit/nodejs");
 const { toFile } = require("@imagekit/nodejs");
 const jwt = require("jsonwebtoken");
 const postModel = require("../models/post.model");
+const likesModel = require("../models/likes.model");
 
 // For uploading an image file to ImageKit using multer memory storage.
 async function createPostController(req, res) {
@@ -46,8 +47,31 @@ async function getPostByIdController(req, res) {
 }
 
 async function getFeedController(req, res) {
-  const posts = await postModel.find().populate("user").sort({ createdAt: -1 });
-  res.status(200).json({ posts });
+  const posts = await postModel
+    .find()
+    .populate("user", "username profileImage")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const postIds = posts.map((post) => post._id);
+  const likes = await likesModel.find({ post: { $in: postIds } }).lean();
+  const currentUserId = req.user.id.toString();
+
+  const postsWithLikes = posts.map((post) => {
+    const postLikes = likes.filter(
+      (like) => like.post.toString() === post._id.toString(),
+    );
+
+    return {
+      ...post,
+      likesCount: postLikes.length,
+      likedByMe: postLikes.some(
+        (like) => like.likedBy.toString() === currentUserId,
+      ),
+    };
+  });
+
+  res.status(200).json({ posts: postsWithLikes });
 }
 
 module.exports = {

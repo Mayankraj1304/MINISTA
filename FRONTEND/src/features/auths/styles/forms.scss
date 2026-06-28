@@ -1,15 +1,18 @@
 // --- Design System Variables ---
-$bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-$card-bg: rgba(30, 41, 59, 0.7);
+$bg-gradient:
+  radial-gradient(circle at 18% 18%, rgba(56, 189, 248, 0.18), transparent 30%),
+  radial-gradient(circle at 88% 24%, rgba(251, 113, 133, 0.13), transparent 26%),
+  linear-gradient(180deg, #111827, #0d1117);
+$card-bg: rgba(22, 27, 34, 0.86);
 $card-border: rgba(255, 255, 255, 0.08);
 
-$primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-$primary-hover: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+$primary-gradient: linear-gradient(135deg, #38bdf8 0%, #34d399 100%);
+$primary-hover: linear-gradient(135deg, #7dd3fc 0%, #6ee7b7 100%);
 
 $text-main: #f8fafc;
 $text-muted: #94a3b8;
 $input-bg: rgba(15, 23, 42, 0.6);
-$input-focus-border: #818cf8;
+$input-focus-border: #38bdf8;
 
 $transition-speed: 0.25s;
 $radius-lg: 16px;
@@ -23,7 +26,7 @@ $radius-md: 10px;
   min-height: 100vh;
   width: 100%;
   background: $bg-gradient;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
   padding: 20px;
   box-sizing: border-box;
 
@@ -35,14 +38,14 @@ $radius-md: 10px;
 // --- Card Container ---
 .auth-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   background: $card-bg;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid $card-border;
-  border-radius: $radius-lg;
+  border-radius: 20px;
   padding: 40px 32px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34), 
               0 1px 3px rgba(255, 255, 255, 0.05) inset;
   display: flex;
   flex-direction: column;
@@ -54,8 +57,8 @@ $radius-md: 10px;
 
   &__title {
     color: $text-main;
-    font-size: 1.85rem;
-    font-weight: 700;
+    font-size: 2rem;
+    font-weight: 800;
     margin: 0 0 8px 0;
     letter-spacing: -0.02em;
   }
@@ -124,13 +127,13 @@ $radius-md: 10px;
 
   // Links styling
   &__link {
-    color: #a5b4fc;
+    color: #7dd3fc;
     font-size: 0.85rem;
     text-decoration: none;
     transition: color $transition-speed;
 
     &:hover {
-      color: #c7d2fe;
+      color: #bae6fd;
       text-decoration: underline;
     }
 
@@ -146,9 +149,9 @@ $radius-md: 10px;
     background: $primary-gradient;
     border: none;
     border-radius: $radius-md;
-    color: #ffffff;
+    color: #06212d;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 900;
     cursor: pointer;
     margin-top: 10px;
     transition: transform 0.1s ease, box-shadow $transition-speed ease;
@@ -162,5 +165,36 @@ $radius-md: 10px;
     &:active {
       transform: scale(0.98);
     }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+      transform: none;
+    }
   }
+}
+
+.app-alert {
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+
+  button {
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-weight: 700;
+  }
+}
+
+.app-alert--error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  color: #fecaca;
 }

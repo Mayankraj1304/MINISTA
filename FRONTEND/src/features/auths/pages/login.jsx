@@ -1,17 +1,21 @@
 import React from "react";
 import "../styles/forms.scss";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const { user, loading, handleLogin } = useAuth();
+  const { loading, error, clearError, handleLogin } = useAuth();
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const navigate = useNavigate();
   async function handleSubmit(e) {
     e.preventDefault();
-    await handleLogin(username, password);
-    navigate("/feeds");
+    try {
+      await handleLogin(username, password);
+      navigate("/");
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   }
 
   return (
@@ -25,6 +29,13 @@ const Login = () => {
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
+          {error && (
+            <div className="app-alert app-alert--error">
+              <span>{error}</span>
+              <button type="button" onClick={clearError}>Dismiss</button>
+            </div>
+          )}
+
           <div className="auth-form__group">
             <label className="auth-form__label">Username</label>
             <input
@@ -58,20 +69,17 @@ const Login = () => {
             />
           </div>
 
-          <button className="auth-form__submit-btn" type="submit">
-            Sign In
+          <button className="auth-form__submit-btn" type="submit" disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
         <div className="auth-card__footer">
           <p>
             Don't have an account?{" "}
-            <a
-              href="#register"
-              className="auth-form__link auth-form__link--bold"
-            >
+            <Link to="/register" className="auth-form__link auth-form__link--bold">
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
       </main>

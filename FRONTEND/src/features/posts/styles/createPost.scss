@@ -1,128 +1,129 @@
-// Variables
-$bg: #121212;
-$card-bg: #212121;
-$primary-color: #0095f6;
-$primary-hover: #1877f2;
-$text-dark: #ffffff;
-$border-color: #e6e6e6;
+$bg: #0d1117;
+$card-bg: rgba(22, 27, 34, 0.9);
+$primary-color: #38bdf8;
+$primary-hover: #7dd3fc;
+$text-main: #f8fafc;
+$text-muted: #9ca3af;
+$border-color: rgba(148, 163, 184, 0.22);
 
-// Center the entire container on the viewport
 .page-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   width: 100%;
-  background: $bg;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(56, 189, 248, 0.18), transparent 30%),
+    radial-gradient(circle at 88% 24%, rgba(251, 113, 133, 0.13), transparent 26%),
+    linear-gradient(180deg, #111827, $bg);
   box-sizing: border-box;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-// Form Card Styling
 .form-container {
-  background-color: $card-bg;
-  padding: 2.5rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  width: 100%;
-  max-width: 450px;
-  text-align: center;
+  width: min(100%, 500px);
+  padding: 30px;
+  background: $card-bg;
+  border: 1px solid $border-color;
+  border-radius: 20px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(18px);
 
   .form-title {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: $text-dark;
-    margin-bottom: 2rem;
+    margin: 0 0 22px;
+    color: $text-main;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-align: center;
   }
 }
 
-// Layout inside the form
 .post-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 18px;
 
   .input-group {
     display: flex;
     flex-direction: column;
+    gap: 8px;
     text-align: left;
-    gap: 0.5rem;
   }
 
-  // Custom Styled File Upload Button
   .file-label {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 1rem;
-    background-color: #212121;
-    border: 2px dashed $border-color;
-    border-radius: 8px;
+    min-height: 150px;
+    padding: 18px;
+    background: rgba(2, 6, 23, 0.5);
+    border: 1px dashed rgba(56, 189, 248, 0.52);
+    border-radius: 16px;
+    color: $primary-color;
     cursor: pointer;
-    font-weight: 500;
-    font-size: 1.25em;
-    color: #555;
-    transition: all 0.2s ease;
+    font-size: 1rem;
+    font-weight: 800;
+    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
 
     &:hover {
-      border-color: $primary-color;
-      background-color: rgba($primary-color, 0.02);
-      color: $primary-color;
+      background: rgba(56, 189, 248, 0.1);
+      border-color: $primary-hover;
+      transform: translateY(-1px);
     }
 
     .file-input {
-      display: none; // Hides the ugly native file input string
+      display: none;
     }
   }
 
-  // Caption/Content Labels and Textarea
   .text-label {
+    color: $text-muted;
     font-size: 0.9rem;
-    font-weight: 600;
-    color: #666;
+    font-weight: 800;
   }
 
   .text-input {
     width: 100%;
-    padding: 0.75rem;
+    padding: 13px 14px;
+    background: rgba(2, 6, 23, 0.55);
     border: 1px solid $border-color;
-    border-radius: 10px;
-    font-size: 1.25rem;
-    font-family: inherit;
-    resize: none;
+    border-radius: 14px;
+    color: $text-main;
+    font: inherit;
+    resize: vertical;
     outline: none;
     box-sizing: border-box;
-    transition: border-color 0.2s;
-    background-color: #212121;
-    color: $text-dark;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
     &:focus {
-      box-shadow: 0px 0px 20px 1px  $primary-color;
+      border-color: rgba(56, 189, 248, 0.65);
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.12);
     }
   }
 
-  // Submit Button
   .submit-btn {
-    background-color: $primary-color;
-    color: #ffffff;
+    margin-top: 4px;
+    padding: 14px;
+    background: linear-gradient(135deg, #38bdf8, #34d399);
     border: none;
-    padding: 0.85rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
+    border-radius: 14px;
+    color: #06212d;
     cursor: pointer;
-    transition:
-      background-color 0.2s ease,
-      transform 0.1s ease;
-    margin-top: 0.5rem;
+    font-size: 1rem;
+    font-weight: 900;
+    transition: transform 0.16s ease, filter 0.16s ease;
 
-    &:hover {
-      background-color: $primary-hover;
+    &:hover:not(:disabled) {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
     }
 
-    &:active {
-      transform: scale(0.98); // Tiny click bounce effect
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+      transform: none;
     }
   }
 }
