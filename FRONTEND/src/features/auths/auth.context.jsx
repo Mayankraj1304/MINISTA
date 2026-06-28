@@ -2,6 +2,7 @@
 import axios from "axios";
 import { useCallback, useEffect, useState, createContext } from "react";
 import { login, register, getMe, logout } from "./services/auth.api";
+import { getApiErrorMessage } from "../../config/api";
 
 export const AuthContext = createContext();
 
@@ -9,9 +10,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const getErrorMessage = (error, fallback) =>
-    error.response?.data?.message || error.message || fallback;
 
   const verifyUser = useCallback(async ({ showLoading = true } = {}) => {
     if (showLoading) {
@@ -61,7 +59,7 @@ export const AuthProvider = ({ children }) => {
       return response.user;
     } catch (error) {
       setUser(null);
-      setError(getErrorMessage(error, "Unable to sign in. Please try again."));
+      setError(getApiErrorMessage(error, "Unable to sign in. Please try again."));
       throw error;
     } finally {
       setLoading(false);
@@ -78,7 +76,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setUser(null);
       setError(
-        getErrorMessage(error, "Unable to create your account. Please try again."),
+        getApiErrorMessage(error, "Unable to create your account. Please try again."),
       );
       throw error;
     } finally {
@@ -92,7 +90,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await logout();
     } catch (error) {
-      setError(getErrorMessage(error, "Logout failed. Please try again."));
+      setError(getApiErrorMessage(error, "Logout failed. Please try again."));
       throw error;
     } finally {
       setUser(null);
