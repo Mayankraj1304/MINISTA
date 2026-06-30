@@ -23,5 +23,5 @@ MINISTA is a full-stack social media web application built with a React + Vite f
 MINISTA/
 ├── FRONTEND/   # React + Vite client
 └── BACKEND/    # Express.js API server
-
-connect me if u want to give any feedback
+```
+connect me if u want to give any feedback on www.linkedin.com/in/mayankraj1304
