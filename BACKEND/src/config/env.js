@@ -1,4 +1,4 @@
-﻿const env = {
+const env = {
   port: process.env.PORT || 3000,
   nodeEnv: process.env.NODE_ENV || "development",
   mongoUri: process.env.MONGO_URI,
@@ -6,7 +6,8 @@
   frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
   imagekitKey: process.env.IMAGEKIT_KEY,
   apiPublicUrl: process.env.API_PUBLIC_URL,
-  resendApiKey: process.env.RESEND_API_KEY,
+  gmailUser: process.env.GMAIL_USER,
+  gmailAppPassword: process.env.GMAIL_APP_PASSWORD,
   emailFrom: process.env.EMAIL_FROM,
   jsonBodyLimit: process.env.JSON_BODY_LIMIT || "1mb",
   trustProxy: process.env.TRUST_PROXY || "1",
@@ -47,3 +48,4 @@ module.exports = {
   requireEnv,
   validateProductionEnv,
 };
+

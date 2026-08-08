@@ -1,14 +1,10 @@
-﻿const multer = require("multer");
-const upload = multer();
-const ImageKit = require("@imagekit/nodejs");
+﻿const ImageKit = require("@imagekit/nodejs");
 const { toFile } = require("@imagekit/nodejs");
-const jwt = require("jsonwebtoken");
 const postModel = require("../models/post.model");
 const likesModel = require("../models/likes.model");
-const followModel = require("../models/follow.model");
 const { env, requireEnv } = require("../config/env");
+const { canUserViewPost, getVisibleUserIds } = require("../services/visibility.service");
 
-// For uploading an image file to ImageKit using multer memory storage.
 async function createPostController(req, res) {
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
@@ -46,32 +42,17 @@ async function getPostByIdController(req, res) {
     return res.status(404).json({ message: "Post not found" });
   }
 
-  const canView =
-    post.user.toString() === req.user.id.toString() ||
-    (await followModel.exists({
-      follower: req.user.id,
-      followee: post.user,
-      status: "accepted",
-    }));
-
-  if (!canView) {
+  if (!(await canUserViewPost(req.user.id, post))) {
     return res
       .status(403)
-      .json({ message: "You can only view posts from people you follow" });
+      .json({ message: "You can only view posts from accepted connections" });
   }
 
   res.status(200).json({ post });
 }
 
 async function getFeedController(req, res) {
-  const acceptedFollows = await followModel
-    .find({ follower: req.user.id, status: "accepted" })
-    .select("followee")
-    .lean();
-  const visibleUserIds = [
-    req.user.id,
-    ...acceptedFollows.map((follow) => follow.followee),
-  ];
+  const visibleUserIds = await getVisibleUserIds(req.user.id);
 
   const posts = await postModel
     .find({ user: { $in: visibleUserIds } })
@@ -106,6 +87,3 @@ module.exports = {
   getPostByIdController,
   getFeedController,
 };
-
-
-

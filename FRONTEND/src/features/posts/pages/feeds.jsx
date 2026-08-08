@@ -22,7 +22,9 @@ const Feeds = () => {
     loading,
     usersLoading,
     error,
+    notice,
     clearError,
+    clearNotice,
     handleGetFeeds,
     handleGetDiscoverUsers,
     handleToggleLike,
@@ -138,6 +140,13 @@ const Feeds = () => {
             </section>
           )}
 
+          {notice && (
+            <div className="app-alert app-alert--success">
+              <span>{notice}</span>
+              <button type="button" onClick={clearNotice}>Dismiss</button>
+            </div>
+          )}
+
           {error && (
             <div className="app-alert app-alert--error">
               <span>{error}</span>
@@ -181,7 +190,7 @@ const Feeds = () => {
           <div className="trend-panel">
             <span className="trend-panel__label">Privacy MVP</span>
             <h2>Follower approval</h2>
-            <p>Send a request, wait for email approval, then their posts appear in your feed.</p>
+            <p>Send a request. Once it is accepted in Account, posts become visible for both connected users.</p>
           </div>
 
           <DiscoverPeople
@@ -385,4 +394,6 @@ const FeedPost = ({ post, onToggleLike }) => {
 };
 
 export default Feeds;
+
+
 

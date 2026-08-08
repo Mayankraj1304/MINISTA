@@ -8,9 +8,10 @@ const likesRouter = require("./routes/likes.routes");
 const { env } = require("./config/env");
 
 const app = express();
+const normalizeOrigin = (origin) => origin?.trim().replace(/\/+$/, "");
 const allowedOrigins = env.frontendUrl
   .split(",")
-  .map((origin) => origin.trim())
+  .map(normalizeOrigin)
   .filter(Boolean);
 
 app.disable("x-powered-by");
@@ -18,11 +19,13 @@ app.set("trust proxy", env.trustProxy);
 
 const corsOptions = {
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    const normalizedOrigin = normalizeOrigin(origin);
+
+    if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin)) {
       return callback(null, true);
     }
 
-    return callback(new Error("Not allowed by CORS"));
+    return callback(new Error(`Not allowed by CORS: ${origin}`));
   },
   credentials: true,
 };

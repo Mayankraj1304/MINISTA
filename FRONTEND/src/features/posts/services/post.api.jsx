@@ -1,5 +1,5 @@
 ﻿import axios from "axios";
-import { API_BASE_URL } from "../../../config/api";
+import { API_BASE_URL, assertApiConfigured } from "../../../config/api";
 
 const API_URL = {
   baseURL: `${API_BASE_URL}/posts/`,
@@ -7,6 +7,7 @@ const API_URL = {
 };
 
 export async function getFeeds() {
+  assertApiConfigured();
   const response = await axios.get(`${API_URL.baseURL}feed`, {
     withCredentials: true,
   });
@@ -14,6 +15,7 @@ export async function getFeeds() {
 }
 
 export async function createPost(formData) {
+  assertApiConfigured();
   const response = await axios.post(API_URL.baseURL, formData, {
     withCredentials: true,
   });
@@ -21,6 +23,7 @@ export async function createPost(formData) {
 }
 
 export async function likePost(postId) {
+  assertApiConfigured();
   const response = await axios.post(
     `${API_BASE_URL}/user/likes/${postId}`,
     {},
@@ -30,6 +33,7 @@ export async function likePost(postId) {
 }
 
 export async function unlikePost(postId) {
+  assertApiConfigured();
   const response = await axios.delete(
     `${API_BASE_URL}/user/likes/${postId}`,
     { withCredentials: true },
@@ -38,6 +42,7 @@ export async function unlikePost(postId) {
 }
 
 export async function getDiscoverUsers() {
+  assertApiConfigured();
   const response = await axios.get(`${API_BASE_URL}/user/follows/users`, {
     withCredentials: true,
   });
@@ -45,6 +50,7 @@ export async function getDiscoverUsers() {
 }
 
 export async function requestFollow(username) {
+  assertApiConfigured();
   const response = await axios.post(
     `${API_BASE_URL}/user/follows/${username}`,
     {},
@@ -54,6 +60,7 @@ export async function requestFollow(username) {
 }
 
 export async function getFollowRequests() {
+  assertApiConfigured();
   const response = await axios.get(`${API_BASE_URL}/user/follows/requests`, {
     withCredentials: true,
   });
@@ -61,6 +68,7 @@ export async function getFollowRequests() {
 }
 
 export async function updateFollowRequest(requestId, action) {
+  assertApiConfigured();
   const response = await axios.patch(
     `${API_BASE_URL}/user/follows/requests/${requestId}/${action}`,
     {},

@@ -18,6 +18,7 @@ export const PostProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [usersLoading, setUsersLoading] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
 
   const handleGetFeeds = useCallback(async () => {
     setLoading(true);
@@ -25,6 +26,7 @@ export const PostProvider = ({ children }) => {
     try {
       const response = await getFeeds();
       setFeeds(response.posts);
+      return response.posts;
     } catch (error) {
       setError(getApiErrorMessage(error, "Could not load the feed."));
       throw error;
@@ -51,11 +53,13 @@ export const PostProvider = ({ children }) => {
   const handleCreatePost = useCallback(async (formData) => {
     setLoading(true);
     setError("");
+    setNotice("");
     try {
       const response = await createPost(formData);
       if (response.post) {
         setFeeds((prevFeeds) => [response.post, ...prevFeeds]);
       }
+      setNotice("Post created successfully.");
       return response.post;
     } catch (error) {
       setError(getApiErrorMessage(error, "Could not create the post."));
@@ -96,13 +100,16 @@ export const PostProvider = ({ children }) => {
 
   const handleRequestFollow = useCallback(async (username) => {
     setError("");
+    setNotice("");
     try {
-      await requestFollow(username);
+      const response = await requestFollow(username);
       setDiscoverUsers((prevUsers) =>
         prevUsers.map((user) =>
-          user.username === username ? { ...user, followStatus: "pending" } : user,
+          user.username === username ? { ...user, followStatus: "pending", relationshipDirection: "outgoing" } : user,
         ),
       );
+      setNotice(response.message || "Follow request sent.");
+      return response;
     } catch (error) {
       setError(getApiErrorMessage(error, "Could not send follow request."));
       throw error;
@@ -110,6 +117,7 @@ export const PostProvider = ({ children }) => {
   }, []);
 
   const clearError = useCallback(() => setError(""), []);
+  const clearNotice = useCallback(() => setNotice(""), []);
 
   return (
     <PostContext.Provider
@@ -119,7 +127,9 @@ export const PostProvider = ({ children }) => {
         loading,
         usersLoading,
         error,
+        notice,
         clearError,
+        clearNotice,
         handleGetFeeds,
         handleGetDiscoverUsers,
         handleCreatePost,
@@ -131,4 +141,3 @@ export const PostProvider = ({ children }) => {
     </PostContext.Provider>
   );
 };
-

@@ -1,5 +1,5 @@
-import axios from "axios";
-import { API_BASE_URL } from "../../../config/api";
+﻿import axios from "axios";
+import { API_BASE_URL, assertApiConfigured } from "../../../config/api";
 
 const API_URL = {
   baseURL: `${API_BASE_URL}/auth/`,
@@ -7,6 +7,7 @@ const API_URL = {
 };
 
 export async function login(username, password) {
+  assertApiConfigured();
   const response = await axios.post(
     `${API_URL.baseURL}login`,
     {
@@ -19,6 +20,7 @@ export async function login(username, password) {
 }
 
 export async function register(username, email, password) {
+  assertApiConfigured();
   const response = await axios.post(
     `${API_URL.baseURL}register`,
     {
@@ -32,6 +34,7 @@ export async function register(username, email, password) {
 }
 
 export async function getMe() {
+  assertApiConfigured();
   const response = await axios.post(
     `${API_URL.baseURL}getme`,
     {},
@@ -41,6 +44,7 @@ export async function getMe() {
 }
 
 export async function logout() {
+  assertApiConfigured();
   const response = await axios.post(
     `${API_URL.baseURL}logout`,
     {},

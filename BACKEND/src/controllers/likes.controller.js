@@ -1,20 +1,7 @@
 ﻿const userModel = require("../models/User.model");
 const likesModel = require("../models/likes.model");
 const postModel = require("../models/post.model");
-const followModel = require("../models/follow.model");
-
-async function canUserViewPost(userId, post) {
-  return (
-    post.user.toString() === userId.toString() ||
-    Boolean(
-      await followModel.exists({
-        follower: userId,
-        followee: post.user,
-        status: "accepted",
-      }),
-    )
-  );
-}
+const { canUserViewPost } = require("../services/visibility.service");
 
 async function createLikesController(req, res) {
   try {
@@ -39,7 +26,7 @@ async function createLikesController(req, res) {
 
     if (!(await canUserViewPost(currentUser._id, post))) {
       return res.status(403).json({
-        message: "You can only like posts from people you follow",
+        message: "You can only like posts from accepted connections",
       });
     }
 
@@ -88,7 +75,7 @@ async function deleteLikesController(req, res) {
 
     if (!(await canUserViewPost(req.user.id, post))) {
       return res.status(403).json({
-        message: "You can only unlike posts from people you follow",
+        message: "You can only unlike posts from accepted connections",
       });
     }
 
