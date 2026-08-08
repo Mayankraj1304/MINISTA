@@ -1,6 +1,20 @@
-const userModel = require("../models/User.model");
+﻿const userModel = require("../models/User.model");
 const likesModel = require("../models/likes.model");
 const postModel = require("../models/post.model");
+const followModel = require("../models/follow.model");
+
+async function canUserViewPost(userId, post) {
+  return (
+    post.user.toString() === userId.toString() ||
+    Boolean(
+      await followModel.exists({
+        follower: userId,
+        followee: post.user,
+        status: "accepted",
+      }),
+    )
+  );
+}
 
 async function createLikesController(req, res) {
   try {
@@ -20,6 +34,12 @@ async function createLikesController(req, res) {
     if (!post) {
       return res.status(404).json({
         message: "Post not found",
+      });
+    }
+
+    if (!(await canUserViewPost(currentUser._id, post))) {
+      return res.status(403).json({
+        message: "You can only like posts from people you follow",
       });
     }
 
@@ -57,6 +77,20 @@ async function createLikesController(req, res) {
 async function deleteLikesController(req, res) {
   try {
     const { id: postId } = req.params;
+    const post = await postModel.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+
+    if (!(await canUserViewPost(req.user.id, post))) {
+      return res.status(403).json({
+        message: "You can only unlike posts from people you follow",
+      });
+    }
 
     const deletedLike = await likesModel.findOneAndDelete({
       likedBy: req.user.id,

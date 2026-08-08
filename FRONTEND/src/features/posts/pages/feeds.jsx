@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useFeeds } from "../hooks/useFeeds";
 import {
   Bookmark,
@@ -7,21 +7,34 @@ import {
   MoreHorizontal,
   Search,
   Send,
-  Sparkles,
+  ShieldCheck,
   TrendingUp,
+  UserPlus,
 } from "lucide-react";
 import { useAuth } from "../../auths/hooks/useAuth";
 import "../styles/feeds.scss";
 import NavBar from "../components/navBar";
 
 const Feeds = () => {
-  const { feeds, loading, error, clearError, handleGetFeeds, handleToggleLike } = useFeeds();
+  const {
+    feeds,
+    discoverUsers,
+    loading,
+    usersLoading,
+    error,
+    clearError,
+    handleGetFeeds,
+    handleGetDiscoverUsers,
+    handleToggleLike,
+    handleRequestFollow,
+  } = useFeeds();
   const { user } = useAuth();
   const [query, setQuery] = useState("");
 
   useEffect(() => {
     handleGetFeeds().catch(() => {});
-  }, [handleGetFeeds]);
+    handleGetDiscoverUsers().catch(() => {});
+  }, [handleGetFeeds, handleGetDiscoverUsers]);
 
   const filteredFeeds = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -85,7 +98,7 @@ const Feeds = () => {
           <div className="quick-stats">
             <div>
               <strong>{feeds.length}</strong>
-              <span>Posts</span>
+              <span>Visible posts</span>
             </div>
             <div>
               <strong>{totalLikes}</strong>
@@ -98,10 +111,10 @@ const Feeds = () => {
           <section className="feed-hero">
             <div>
               <span className="feed-hero__eyebrow">
-                <Sparkles size={15} />
-                Fresh from your network
+                <ShieldCheck size={15} />
+                Private follower feed
               </span>
-              <h1>Discover what people are creating today.</h1>
+              <h1>Only posts from people you follow appear here.</h1>
             </div>
             <label className="feed-search">
               <Search size={18} />
@@ -109,7 +122,7 @@ const Feeds = () => {
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search creators or captions"
+                placeholder="Search visible creators or captions"
               />
             </label>
           </section>
@@ -118,10 +131,7 @@ const Feeds = () => {
             <section className="stories-strip" aria-label="Top creators">
               {topCreators.map((creator) => (
                 <button className="story-chip" key={creator.username} type="button">
-                  <img
-                    src={creator.profileImage}
-                    alt={`${creator.username} profile`}
-                  />
+                  <img src={creator.profileImage} alt={`${creator.username} profile`} />
                   <span>@{creator.username}</span>
                 </button>
               ))}
@@ -148,8 +158,8 @@ const Feeds = () => {
           ) : feeds.length === 0 ? (
             <div className="feed-status-message">
               <TrendingUp size={36} />
-              <h2>No posts yet</h2>
-              <p>Create the first post and start the feed.</p>
+              <h2>No private feed posts yet</h2>
+              <p>Follow people to unlock their posts, or create your first post.</p>
               <button className="retry-btn" onClick={handleGetFeeds}>Check Again</button>
             </div>
           ) : filteredFeeds.length === 0 ? (
@@ -169,15 +179,21 @@ const Feeds = () => {
 
         <aside className="feed-sidebar feed-sidebar--right">
           <div className="trend-panel">
-            <span className="trend-panel__label">Trending</span>
-            <h2>Creator pulse</h2>
-            <p>Posts with more likes rise in the creator strip, making active creators easier to spot.</p>
+            <span className="trend-panel__label">Privacy MVP</span>
+            <h2>Follower approval</h2>
+            <p>Send a request, wait for email approval, then their posts appear in your feed.</p>
           </div>
 
+          <DiscoverPeople
+            users={discoverUsers}
+            loading={usersLoading}
+            onRequestFollow={handleRequestFollow}
+          />
+
           <div className="creator-list">
-            <h3>Top creators</h3>
+            <h3>Top visible creators</h3>
             {topCreators.length === 0 ? (
-              <p className="muted-copy">No creator activity yet.</p>
+              <p className="muted-copy">No visible creator activity yet.</p>
             ) : (
               topCreators.map((creator) => (
                 <div className="creator-row" key={creator.username}>
@@ -196,22 +212,67 @@ const Feeds = () => {
   );
 };
 
-/* ==========================================
-   Sub-Component: Single Feed Post Wrapper
-   ========================================== */
+const DiscoverPeople = ({ users, loading, onRequestFollow }) => {
+  const [peopleQuery, setPeopleQuery] = useState("");
+  const filteredUsers = users.filter((person) =>
+    person.username.toLowerCase().includes(peopleQuery.trim().toLowerCase()),
+  );
+
+  return (
+    <div className="discover-panel">
+      <div className="discover-panel__header">
+        <div>
+          <span>Follow requests</span>
+          <h3>Find people</h3>
+        </div>
+        <UserPlus size={18} />
+      </div>
+      <label className="mini-search">
+        <Search size={15} />
+        <input
+          value={peopleQuery}
+          onChange={(event) => setPeopleQuery(event.target.value)}
+          placeholder="Search username"
+        />
+      </label>
+      {loading ? (
+        <p className="muted-copy">Loading people...</p>
+      ) : filteredUsers.length === 0 ? (
+        <p className="muted-copy">No people found.</p>
+      ) : (
+        filteredUsers.slice(0, 6).map((person) => (
+          <div className="discover-row" key={person._id}>
+            <img src={person.profileImage} alt={`${person.username} profile`} />
+            <div>
+              <strong>@{person.username}</strong>
+              <span>{person.bio || "Minista creator"}</span>
+            </div>
+            <button
+              type="button"
+              disabled={person.followStatus !== "none"}
+              onClick={() => onRequestFollow(person.username).catch(() => {})}
+            >
+              {person.followStatus === "none" ? "Request" : person.followStatus}
+            </button>
+          </div>
+        ))
+      )}
+    </div>
+  );
+};
+
 const FeedPost = ({ post, onToggleLike }) => {
   const [saved, setSaved] = useState(false);
   const [commentOpen, setCommentOpen] = useState(false);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [shared, setShared] = useState(false);
-  // Safe fallbacks to keep UI stable even with partial backend data
   const username = post.user?.username || "anonymous";
   const profilePic = post.user?.profileImage || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&h=150&q=80";
   const location = post.location || "Global";
   const likesCount = post.likesCount || 0;
-  const formattedDate = post.createdAt 
-    ? new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) 
+  const formattedDate = post.createdAt
+    ? new Date(post.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })
     : "RECENT";
 
   const handleShare = async () => {
@@ -244,14 +305,9 @@ const FeedPost = ({ post, onToggleLike }) => {
 
   return (
     <article className="instagram-post">
-      {/* Post Header */}
       <header className="post-header">
         <div className="user-info">
-          <img 
-            src={profilePic} 
-            alt={`${username} profile`} 
-            className="profile-pic" 
-          />
+          <img src={profilePic} alt={`${username} profile`} className="profile-pic" />
           <div className="text-details">
             <span className="username">@{username}</span>
             <span className="location">{location}</span>
@@ -262,17 +318,10 @@ const FeedPost = ({ post, onToggleLike }) => {
         </button>
       </header>
 
-      {/* Post Image Container */}
       <div className="post-image-container">
-        <img 
-          src={post.imgUrl} 
-          alt={post.caption || "Post asset"} 
-          className="post-image" 
-          loading="lazy"
-        />
+        <img src={post.imgUrl} alt={post.caption || "Post asset"} className="post-image" loading="lazy" />
       </div>
 
-      {/* Post Interactive Actions Footer */}
       <div className="post-actions-container">
         <div className="interaction-buttons">
           <div className="left-actions">
@@ -283,8 +332,8 @@ const FeedPost = ({ post, onToggleLike }) => {
             >
               <Heart size={24} fill={post.likedByMe ? "currentColor" : "none"} />
             </button>
-            <button className="action-btn" aria-label="Comment">
-              <MessageCircle size={24} onClick={() => setCommentOpen((open) => !open)} />
+            <button className="action-btn" aria-label="Comment" onClick={() => setCommentOpen((open) => !open)}>
+              <MessageCircle size={24} />
             </button>
             <button className="action-btn" aria-label="Share post" onClick={handleShare}>
               <Send size={24} />
@@ -299,18 +348,15 @@ const FeedPost = ({ post, onToggleLike }) => {
           </button>
         </div>
 
-        {/* Likes Count */}
         <div className="likes-section">
           <span>{likesCount.toLocaleString()} likes</span>
         </div>
 
-        {/* Caption Layout */}
         <div className="caption-section">
           <span className="caption-username">@{username}</span>
           <span className="caption-text">{post.caption}</span>
         </div>
 
-        {/* Dynamic Creation Time Stamp */}
         <div className="time-posted">
           <span>{formattedDate.toUpperCase()}</span>
           {shared && <span className="share-feedback">Copied to share</span>}
@@ -339,3 +385,4 @@ const FeedPost = ({ post, onToggleLike }) => {
 };
 
 export default Feeds;
+

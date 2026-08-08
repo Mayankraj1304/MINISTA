@@ -1,4 +1,4 @@
-import axios from "axios";
+﻿import axios from "axios";
 import { API_BASE_URL } from "../../../config/api";
 
 const API_URL = {
@@ -36,3 +36,20 @@ export async function unlikePost(postId) {
   );
   return response.data;
 }
+
+export async function getDiscoverUsers() {
+  const response = await axios.get(`${API_BASE_URL}/user/follows/users`, {
+    withCredentials: true,
+  });
+  return response.data;
+}
+
+export async function requestFollow(username) {
+  const response = await axios.post(
+    `${API_BASE_URL}/user/follows/${username}`,
+    {},
+    { withCredentials: true },
+  );
+  return response.data;
+}
+

@@ -1,5 +1,40 @@
-const userModel = require("../models/User.model");
+﻿const userModel = require("../models/User.model");
 const followModel = require("../models/follow.model");
+const { sendFollowRequestEmail } = require("../services/email.service");
+
+function getPublicUser(user) {
+  return {
+    id: user._id,
+    username: user.username,
+    profileImage: user.profileImage,
+    bio: user.bio,
+  };
+}
+
+async function listUsersController(req, res) {
+  const currentUser = await userModel.findById(req.user.id);
+  const users = await userModel
+    .find({ _id: { $ne: req.user.id } })
+    .select("username profileImage bio")
+    .lean();
+
+  const follows = await followModel
+    .find({ follower: req.user.id })
+    .select("followee status")
+    .lean();
+
+  const followByUserId = new Map(
+    follows.map((follow) => [follow.followee.toString(), follow.status]),
+  );
+
+  res.status(200).json({
+    currentUser: getPublicUser(currentUser),
+    users: users.map((user) => ({
+      ...user,
+      followStatus: followByUserId.get(user._id.toString()) || "none",
+    })),
+  });
+}
 
 async function createFollowController(req, res) {
   const { username: targetUsername } = req.params;
@@ -18,32 +53,81 @@ async function createFollowController(req, res) {
   }
 
   const existingFollow = await followModel.findOne({
-    follower: currentUser.username,
-    followee: targetUsername,
+    follower: currentUser._id,
+    followee: targetUser._id,
   });
 
-  if (existingFollow) {
+  if (existingFollow && existingFollow.status !== "rejected") {
     return res
       .status(409)
-      .json({ message: "You are already following this user" });
+      .json({ message: `Follow request is already ${existingFollow.status}` });
   }
 
   try {
-    const follow = await followModel.create({
-      follower: currentUser.username,
-      followee: targetUsername,
+    const follow =
+      existingFollow ||
+      (await followModel.create({
+        follower: currentUser._id,
+        followee: targetUser._id,
+        status: "pending",
+      }));
+
+    if (existingFollow?.status === "rejected") {
+      follow.status = "pending";
+      await follow.save();
+    }
+
+    const apiBaseUrl =
+      process.env.API_PUBLIC_URL || `${req.protocol}://${req.get("host")}`;
+    const acceptUrl = `${apiBaseUrl}/api/user/follows/${follow._id}/accept`;
+    const rejectUrl = `${apiBaseUrl}/api/user/follows/${follow._id}/reject`;
+
+    await sendFollowRequestEmail({
+      to: targetUser.email,
+      targetUsername: targetUser.username,
+      requesterUsername: currentUser.username,
+      acceptUrl,
+      rejectUrl,
     });
 
     return res.status(201).json({
-      message: "Follow created",
+      message: "Follow request sent",
       follow,
     });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Could not send follow request" });
+  }
+}
+
+async function updateFollowRequestController(req, res) {
+  try {
+    const { requestId, action } = req.params;
+    const follow = await followModel.findById(requestId);
+
+    if (!follow) {
+      return res.status(404).send("Follow request not found");
+    }
+
+    if (!["accept", "reject"].includes(action)) {
+      return res.status(400).send("Invalid follow request action");
+    }
+
+    follow.status = action === "accept" ? "accepted" : "rejected";
+    await follow.save();
+
+    return res
+      .status(200)
+      .send(`Follow request ${follow.status}. You can close this page.`);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Could not update follow request");
   }
 }
 
 module.exports = {
+  listUsersController,
   createFollowController,
+  updateFollowRequestController,
 };
+
