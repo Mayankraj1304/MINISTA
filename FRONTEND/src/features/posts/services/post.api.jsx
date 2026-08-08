@@ -53,3 +53,18 @@ export async function requestFollow(username) {
   return response.data;
 }
 
+export async function getFollowRequests() {
+  const response = await axios.get(`${API_BASE_URL}/user/follows/requests`, {
+    withCredentials: true,
+  });
+  return response.data;
+}
+
+export async function updateFollowRequest(requestId, action) {
+  const response = await axios.patch(
+    `${API_BASE_URL}/user/follows/requests/${requestId}/${action}`,
+    {},
+    { withCredentials: true },
+  );
+  return response.data;
+}

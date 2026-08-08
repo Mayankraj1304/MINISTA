@@ -1,6 +1,7 @@
 ﻿const userModel = require("../models/User.model");
 const followModel = require("../models/follow.model");
 const { sendFollowRequestEmail } = require("../services/email.service");
+const { env } = require("../config/env");
 
 function getPublicUser(user) {
   return {
@@ -32,6 +33,36 @@ async function listUsersController(req, res) {
     users: users.map((user) => ({
       ...user,
       followStatus: followByUserId.get(user._id.toString()) || "none",
+    })),
+  });
+}
+
+async function listFollowRequestsController(req, res) {
+  const [incoming, outgoing] = await Promise.all([
+    followModel
+      .find({ followee: req.user.id, status: "pending" })
+      .populate("follower", "username profileImage bio")
+      .sort({ createdAt: -1 })
+      .lean(),
+    followModel
+      .find({ follower: req.user.id, status: "pending" })
+      .populate("followee", "username profileImage bio")
+      .sort({ createdAt: -1 })
+      .lean(),
+  ]);
+
+  res.status(200).json({
+    incoming: incoming.map((request) => ({
+      id: request._id,
+      status: request.status,
+      createdAt: request.createdAt,
+      user: request.follower,
+    })),
+    outgoing: outgoing.map((request) => ({
+      id: request._id,
+      status: request.status,
+      createdAt: request.createdAt,
+      user: request.followee,
     })),
   });
 }
@@ -78,7 +109,7 @@ async function createFollowController(req, res) {
     }
 
     const apiBaseUrl =
-      process.env.API_PUBLIC_URL || `${req.protocol}://${req.get("host")}`;
+      env.apiPublicUrl || `${req.protocol}://${req.get("host")}`;
     const acceptUrl = `${apiBaseUrl}/api/user/follows/${follow._id}/accept`;
     const rejectUrl = `${apiBaseUrl}/api/user/follows/${follow._id}/reject`;
 
@@ -97,6 +128,36 @@ async function createFollowController(req, res) {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Could not send follow request" });
+  }
+}
+
+async function updateAuthenticatedFollowRequestController(req, res) {
+  try {
+    const { requestId, action } = req.params;
+    const follow = await followModel.findById(requestId);
+
+    if (!follow) {
+      return res.status(404).json({ message: "Follow request not found" });
+    }
+
+    if (follow.followee.toString() !== req.user.id.toString()) {
+      return res.status(403).json({ message: "You can only manage requests sent to you" });
+    }
+
+    if (!["accept", "reject"].includes(action)) {
+      return res.status(400).json({ message: "Invalid follow request action" });
+    }
+
+    follow.status = action === "accept" ? "accepted" : "rejected";
+    await follow.save();
+
+    return res.status(200).json({
+      message: `Follow request ${follow.status}`,
+      follow,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Could not update follow request" });
   }
 }
 
@@ -127,7 +188,9 @@ async function updateFollowRequestController(req, res) {
 
 module.exports = {
   listUsersController,
+  listFollowRequestsController,
   createFollowController,
+  updateAuthenticatedFollowRequestController,
   updateFollowRequestController,
 };
 

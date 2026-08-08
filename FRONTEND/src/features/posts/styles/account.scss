@@ -1,0 +1,228 @@
+﻿$bg-app: #0d1117;
+$bg-panel: rgba(22, 27, 34, 0.88);
+$border-color: rgba(148, 163, 184, 0.18);
+$text-primary: #f8fafc;
+$text-secondary: #9ca3af;
+$accent-blue: #38bdf8;
+$accent-green: #34d399;
+$accent-red: #fb7185;
+
+.account-page {
+  min-height: 100vh;
+  padding-bottom: 48px;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(56, 189, 248, 0.16), transparent 28%),
+    radial-gradient(circle at 88% 18%, rgba(251, 113, 133, 0.14), transparent 26%),
+    linear-gradient(180deg, #111827 0%, $bg-app 42%, #090c10 100%);
+  color: $text-primary;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.account-shell {
+  width: min(980px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.account-hero,
+.request-panel {
+  background: $bg-panel;
+  border: 1px solid $border-color;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.26);
+  backdrop-filter: blur(18px);
+}
+
+.account-hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 24px;
+  margin-bottom: 18px;
+
+  img {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(56, 189, 248, 0.55);
+  }
+
+  span {
+    color: $accent-green;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  h1,
+  p {
+    margin: 0;
+  }
+
+  h1 {
+    margin-top: 5px;
+    font-size: 32px;
+  }
+
+  p {
+    margin-top: 6px;
+    color: $text-secondary;
+  }
+}
+
+.account-alert {
+  margin-bottom: 16px;
+  padding: 13px 15px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.38);
+  border-radius: 12px;
+  color: #fecaca;
+}
+
+.request-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.request-panel {
+  padding: 20px;
+}
+
+.request-panel__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+
+  span {
+    min-width: 30px;
+    padding: 5px 9px;
+    background: rgba(56, 189, 248, 0.14);
+    border: 1px solid rgba(56, 189, 248, 0.34);
+    border-radius: 999px;
+    color: $accent-blue;
+    font-weight: 900;
+    text-align: center;
+  }
+}
+
+.request-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 13px 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.13);
+
+  img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  strong,
+  span {
+    display: block;
+  }
+
+  strong {
+    font-size: 14px;
+  }
+
+  span {
+    color: $text-secondary;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.request-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.accept-btn,
+.reject-btn,
+.pending-pill {
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.accept-btn,
+.reject-btn {
+  cursor: pointer;
+}
+
+.accept-btn {
+  background: rgba(52, 211, 153, 0.16);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  color: $accent-green;
+}
+
+.reject-btn {
+  background: rgba(251, 113, 133, 0.13);
+  border: 1px solid rgba(251, 113, 133, 0.34);
+  color: $accent-red;
+}
+
+.pending-pill {
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: $text-secondary;
+}
+
+.request-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  color: $text-secondary;
+  text-align: center;
+
+  h3,
+  p {
+    margin: 0;
+  }
+
+  h3 {
+    margin-top: 10px;
+    color: $text-primary;
+  }
+
+  p {
+    margin-top: 6px;
+    max-width: 260px;
+    line-height: 1.45;
+  }
+}
+
+@media (max-width: 760px) {
+  .request-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .account-hero {
+    align-items: flex-start;
+  }
+
+  .request-row {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .request-actions {
+    grid-column: 2;
+  }
+}

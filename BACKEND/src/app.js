@@ -1,18 +1,19 @@
-const express = require('express');
+﻿const express = require('express');
 const cors = require("cors")
 const cookieParser = require("cookie-parser")
 const authRouter = require("./routes/auth.routes")
 const postRouter = require("./routes/post.routes")
 const followRouter = require("./routes/follow.routes")
 const likesRouter = require("./routes/likes.routes")
+const { env } = require("./config/env")
 
 const app = express();
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+const allowedOrigins = env.frontendUrl
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-app.use(cors({
+const corsOptions = {
   origin(origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
@@ -21,20 +22,12 @@ app.use(cors({
     return callback(new Error("Not allowed by CORS"));
   },
   credentials: true
-}));
-app.options("*", cors({
-  origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+};
 
-    return callback(new Error("Not allowed by CORS"));
-  },
-  credentials: true
-}));
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser())
-
 
 app.use("/api/auth", authRouter)
 app.use("/api/posts", postRouter)

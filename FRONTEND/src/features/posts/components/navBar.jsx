@@ -1,7 +1,7 @@
-import { useNavigate } from "react-router-dom";
+﻿import { useNavigate } from "react-router-dom";
 import { useFeeds } from "../hooks/useFeeds";
 import { useAuth } from "../../auths/hooks/useAuth";
-import { LogOut, Plus, RotateCw } from "lucide-react";
+import { LogOut, Plus, RotateCw, UserCircle } from "lucide-react";
 
 const NavBar = () => {
   const navigate = useNavigate();
@@ -32,6 +32,9 @@ const NavBar = () => {
         <button className="refresh-btn" onClick={() => navigate("/createPost")} aria-label="Create post" title="Create post">
           <Plus size={16} />
         </button>
+        <button className="refresh-btn" onClick={() => navigate("/account")} aria-label="Account" title="Account">
+          <UserCircle size={16} />
+        </button>
         <button className="refresh-btn" onClick={logout} aria-label="Logout" title="Logout">
           <LogOut size={16} />
         </button>
@@ -41,3 +44,5 @@ const NavBar = () => {
 };
 
 export default NavBar;
+
+

@@ -1,5 +1,7 @@
-﻿async function sendFollowRequestEmail({ to, targetUsername, requesterUsername, acceptUrl, rejectUrl }) {
-  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
+﻿const { env } = require("../config/env");
+
+async function sendFollowRequestEmail({ to, targetUsername, requesterUsername, acceptUrl, rejectUrl }) {
+  if (!env.resendApiKey || !env.emailFrom) {
     console.log(
       `Follow request email skipped: ${requesterUsername} requested to follow ${targetUsername}. Accept: ${acceptUrl}`,
     );
@@ -9,11 +11,11 @@
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      Authorization: `Bearer ${env.resendApiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: process.env.EMAIL_FROM,
+      from: env.emailFrom,
       to,
       subject: `${requesterUsername} wants to follow you on Minista`,
       html: `
@@ -41,4 +43,5 @@
 module.exports = {
   sendFollowRequestEmail,
 };
+
 

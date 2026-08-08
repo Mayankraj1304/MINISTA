@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const postModel = require("../models/post.model");
 const likesModel = require("../models/likes.model");
 const followModel = require("../models/follow.model");
+const { env, requireEnv } = require("../config/env");
 
 // For uploading an image file to ImageKit using multer memory storage.
 async function createPostController(req, res) {
@@ -14,7 +15,7 @@ async function createPostController(req, res) {
   }
 
   const imagekit = new ImageKit({
-    privateKey: process.env.IMAGEKIT_KEY,
+    privateKey: requireEnv("IMAGEKIT_KEY", env.imagekitKey),
   });
 
   const uploadResult = await imagekit.files.upload({
@@ -105,4 +106,5 @@ module.exports = {
   getPostByIdController,
   getFeedController,
 };
+
 

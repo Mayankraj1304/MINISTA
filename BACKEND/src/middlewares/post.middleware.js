@@ -1,5 +1,6 @@
-const jwt = require("jsonwebtoken");
+﻿const jwt = require("jsonwebtoken");
 const userModel = require("../models/User.model");
+const { env, requireEnv } = require("../config/env");
 
 async function identifyUser(req, res, next) {
   const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
@@ -12,7 +13,7 @@ async function identifyUser(req, res, next) {
 
   let decoded;
   try {
-    decoded = jwt.verify(token, process.env.JWT_SECRET);
+    decoded = jwt.verify(token, requireEnv("JWT_SECRET", env.jwtSecret));
   } catch (err) {
     console.error("Invalid token:", err);
     return res.status(401).json({ message: "Invalid token" });
@@ -30,3 +31,4 @@ async function identifyUser(req, res, next) {
 }
 
 module.exports = identifyUser;
+

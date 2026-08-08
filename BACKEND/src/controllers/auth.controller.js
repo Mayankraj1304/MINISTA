@@ -1,11 +1,12 @@
-const userModel = require("../models/User.model");
+﻿const userModel = require("../models/User.model");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const { env, requireEnv } = require("../config/env");
 
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  secure: env.nodeEnv === "production",
+  sameSite: env.nodeEnv === "production" ? "none" : "lax",
 };
 
 function serializeUser(user) {
@@ -49,7 +50,7 @@ async function registerController(req, res) {
     {
       id: user._id,
     },
-    process.env.JWT_SECRET,
+    requireEnv("JWT_SECRET", env.jwtSecret),
     { expiresIn: "1d" },
   );
 
@@ -103,7 +104,7 @@ async function loginController(req, res) {
     });
   }
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ id: user._id }, requireEnv("JWT_SECRET", env.jwtSecret), {
     expiresIn: "1d",
   });
 
@@ -143,3 +144,4 @@ module.exports = {
   getMeController,
   logoutController,
 };
+
