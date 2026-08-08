@@ -1,32 +1,14 @@
 ﻿const express = require('express')
 const followController = require("../controllers/follow.controller")
 const identifyUser = require("../middlewares/post.middleware")
+const asyncHandler = require("../utils/asyncHandler")
 
 const followRouter = express.Router()
 
-/**
- * GET /api/user/follows/users
- */
-followRouter.get('/users', identifyUser, followController.listUsersController)
-
-/**
- * GET /api/user/follows/requests
- */
-followRouter.get('/requests', identifyUser, followController.listFollowRequestsController)
-
-/**
- * PATCH /api/user/follows/requests/:requestId/:action
- */
-followRouter.patch('/requests/:requestId/:action', identifyUser, followController.updateAuthenticatedFollowRequestController)
-
-/**
- * POST /api/user/follows/:username
- */
-followRouter.post('/:username', identifyUser, followController.createFollowController)
-
-/**
- * GET /api/user/follows/:requestId/:action
- */
-followRouter.get('/:requestId/:action', followController.updateFollowRequestController)
+followRouter.get('/users', identifyUser, asyncHandler(followController.listUsersController))
+followRouter.get('/requests', identifyUser, asyncHandler(followController.listFollowRequestsController))
+followRouter.patch('/requests/:requestId/:action', identifyUser, asyncHandler(followController.updateAuthenticatedFollowRequestController))
+followRouter.post('/:username', identifyUser, asyncHandler(followController.createFollowController))
+followRouter.get('/:requestId/:action', asyncHandler(followController.updateFollowRequestController))
 
 module.exports = followRouter

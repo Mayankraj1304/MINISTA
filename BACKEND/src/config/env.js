@@ -8,6 +8,8 @@
   apiPublicUrl: process.env.API_PUBLIC_URL,
   resendApiKey: process.env.RESEND_API_KEY,
   emailFrom: process.env.EMAIL_FROM,
+  jsonBodyLimit: process.env.JSON_BODY_LIMIT || "1mb",
+  trustProxy: process.env.TRUST_PROXY || "1",
 };
 
 function requireEnv(name, value) {
@@ -18,7 +20,30 @@ function requireEnv(name, value) {
   return value;
 }
 
+function validateProductionEnv() {
+  const required = [
+    ["MONGO_URI", env.mongoUri],
+    ["JWT_SECRET", env.jwtSecret],
+    ["FRONTEND_URL", env.frontendUrl],
+    ["API_PUBLIC_URL", env.apiPublicUrl],
+    ["IMAGEKIT_KEY", env.imagekitKey],
+  ];
+
+  const missing = required
+    .filter(([, value]) => !value)
+    .map(([name]) => name);
+
+  if (missing.length > 0) {
+    throw new Error(`Missing production environment variables: ${missing.join(", ")}`);
+  }
+
+  if (env.jwtSecret.length < 32) {
+    throw new Error("JWT_SECRET must be at least 32 characters in production");
+  }
+}
+
 module.exports = {
   env,
   requireEnv,
+  validateProductionEnv,
 };
