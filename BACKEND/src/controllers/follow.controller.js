@@ -38,7 +38,10 @@ function getEmailStatusMessage(emailSkipped, emailSkipReason) {
       "Follow request sent, but the email provider rejected the notification.",
   };
 
-  return messages[emailSkipReason] || "Follow request sent, but email notification could not be delivered.";
+  return (
+    messages[emailSkipReason] ||
+    "Follow request sent, but email notification could not be delivered."
+  );
 }
 
 async function listUsersController(req, res) {
@@ -49,15 +52,27 @@ async function listUsersController(req, res) {
     .lean();
 
   const [outgoingFollows, incomingFollows] = await Promise.all([
-    followModel.find({ follower: req.user.id }).select("followee status").lean(),
-    followModel.find({ followee: req.user.id }).select("follower status").lean(),
+    followModel
+      .find({ follower: req.user.id })
+      .select("followee status")
+      .lean(),
+    followModel
+      .find({ followee: req.user.id })
+      .select("follower status")
+      .lean(),
   ]);
 
   const outgoingByUserId = new Map(
-    outgoingFollows.map((follow) => [follow.followee.toString(), follow.status]),
+    outgoingFollows.map((follow) => [
+      follow.followee.toString(),
+      follow.status,
+    ]),
   );
   const incomingByUserId = new Map(
-    incomingFollows.map((follow) => [follow.follower.toString(), follow.status]),
+    incomingFollows.map((follow) => [
+      follow.follower.toString(),
+      follow.status,
+    ]),
   );
 
   res.status(200).json({
@@ -70,7 +85,11 @@ async function listUsersController(req, res) {
       return {
         ...user,
         followStatus: outgoingStatus || incomingStatus || "none",
-        relationshipDirection: outgoingStatus ? "outgoing" : incomingStatus ? "incoming" : "none",
+        relationshipDirection: outgoingStatus
+          ? "outgoing"
+          : incomingStatus
+            ? "incoming"
+            : "none",
       };
     }),
   });
@@ -164,8 +183,27 @@ async function createFollowController(req, res) {
     });
     emailSkipped = Boolean(emailResult?.skipped);
     emailSkipReason = emailResult?.reason || "";
+    console.log("Follow request email result", {
+      from: env.emailFrom,
+      to: targetUser.email,
+      targetUsername: targetUser.username,
+      requesterUsername: currentUser.username,
+      followId: follow._id.toString(),
+      emailSkipped,
+      emailSkipReason,
+      provider: emailResult?.provider,
+      messageId: emailResult?.id,
+    });
   } catch (err) {
-    console.error("Follow request email failed:", err);
+    console.error("Follow request email failed:", {
+      from: env.emailFrom,
+      to: targetUser.email,
+      targetUsername: targetUser.username,
+      requesterUsername: currentUser.username,
+      followId: follow._id.toString(),
+      error: err?.message || err,
+      stack: err?.stack,
+    });
     emailSkipped = true;
     emailSkipReason = "provider_error";
   }
@@ -190,7 +228,9 @@ async function updateAuthenticatedFollowRequestController(req, res) {
   }
 
   if (follow.followee._id.toString() !== req.user.id.toString()) {
-    return res.status(403).json({ message: "You can only manage requests sent to you" });
+    return res
+      .status(403)
+      .json({ message: "You can only manage requests sent to you" });
   }
 
   if (!["accept", "reject"].includes(action)) {
@@ -198,7 +238,9 @@ async function updateAuthenticatedFollowRequestController(req, res) {
   }
 
   if (follow.status !== "pending") {
-    return res.status(409).json({ message: `Follow request is already ${follow.status}` });
+    return res
+      .status(409)
+      .json({ message: `Follow request is already ${follow.status}` });
   }
 
   follow.status = action === "accept" ? "accepted" : "rejected";
@@ -234,7 +276,9 @@ async function updateFollowRequestController(req, res) {
 
   return res
     .status(200)
-    .send(`Follow request ${follow.status}. Posts are now updated for this connection. You can close this page.`);
+    .send(
+      `Follow request ${follow.status}. Posts are now updated for this connection. You can close this page.`,
+    );
 }
 
 module.exports = {
@@ -244,4 +288,3 @@ module.exports = {
   updateAuthenticatedFollowRequestController,
   updateFollowRequestController,
 };
-
