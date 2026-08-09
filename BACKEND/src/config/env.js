@@ -13,6 +13,15 @@ const env = {
   trustProxy: process.env.TRUST_PROXY || "1",
 };
 
+requireEnv("MONGO_URI", env.mongoUri);
+requireEnv("JWT_SECRET", env.jwtSecret);
+requireEnv("FRONTEND_URL", env.frontendUrl);
+requireEnv("IMAGEKIT_KEY", env.imagekitKey);
+requireEnv("API_PUBLIC_URL", env.apiPublicUrl);
+requireEnv("GMAIL_USER", env.gmailUser);
+requireEnv("GMAIL_APP_PASSWORD", env.gmailAppPassword);
+requireEnv("EMAIL_FROM", env.emailFrom);
+
 function requireEnv(name, value) {
   if (!value) {
     throw new Error(`Missing required environment variable: ${name}`);
@@ -30,12 +39,12 @@ function validateProductionEnv() {
     ["IMAGEKIT_KEY", env.imagekitKey],
   ];
 
-  const missing = required
-    .filter(([, value]) => !value)
-    .map(([name]) => name);
+  const missing = required.filter(([, value]) => !value).map(([name]) => name);
 
   if (missing.length > 0) {
-    throw new Error(`Missing production environment variables: ${missing.join(", ")}`);
+    throw new Error(
+      `Missing production environment variables: ${missing.join(", ")}`,
+    );
   }
 
   if (env.jwtSecret.length < 32) {
@@ -48,4 +57,3 @@ module.exports = {
   requireEnv,
   validateProductionEnv,
 };
-
